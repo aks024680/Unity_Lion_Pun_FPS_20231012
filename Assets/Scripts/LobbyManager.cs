@@ -1,4 +1,5 @@
 ﻿using Photon.Pun;
+using Photon.Realtime;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -45,10 +46,22 @@ namespace photonPun
         private Button btnJoinRandomRoom;
         #endregion
 
+        private string namePlayer;
+        private string nameCreateRoom;
+        private string nameJoinRoom;
+
+        private TextMeshProUGUI textRoomName;
+
+        private TextMeshProUGUI textRoomPersonCount;
+
+        private Button btnStartGame;
+
         private void Awake()
         {
             GetUIObject();
             PhotonNetwork.ConnectUsingSettings();
+            GetInputFieldData();
+            ButtonClickSetting();
         }
 
         private void GetUIObject()
@@ -61,7 +74,61 @@ namespace photonPun
             btnCreateRoom = GameObject.Find("ButtonCreateRoom").GetComponent<Button>();
             btnJoinRoom = GameObject.Find("ButtonIntoRoom").GetComponent<Button>();
             btnJoinRandomRoom = GameObject.Find("ButtonIntoRandomRoom").GetComponent<Button>();
+
+            textRoomName = GameObject.Find("TextTitle (TMP)").GetComponent<TextMeshProUGUI>();
+            textRoomPersonCount = GameObject.Find("TextIntoCount (TMP)").GetComponent<TextMeshProUGUI>();
+
+            btnStartGame = GameObject.Find("ButtonGameStart").GetComponent<Button>();
         }
+
+        private void GetInputFieldData()
+        {
+            inputFieldName.onEndEdit.AddListener((input) => namePlayer = input);
+            inputFieldCreateRoomName.onEndEdit.AddListener((input) => nameCreateRoom = input);
+            inputFieldJoinRoomName.onEndEdit.AddListener((input) => nameJoinRoom = input);
+        }
+
+        private void ButtonClickSetting()
+        {
+            btnCreateRoom.onClick.AddListener(BtnCreateRoom);
+            btnJoinRoom.onClick.AddListener(BtnJoinRoom);
+            btnJoinRandomRoom.onClick.AddListener(BtnRandomRoom);
+            btnStartGame.onClick.AddListener(() => photonView.RPC("RPCLoadGameScene", RpcTarget.All)); 
+        }
+
+        private void BtnCreateRoom()
+        {
+            RoomOptions roomOptions = new RoomOptions();
+            roomOptions.MaxPlayers = 20;
+            PhotonNetwork.CreateRoom(nameCreateRoom, roomOptions);
+            btnStartGame.interactable = true;
+        }
+
+        private void BtnJoinRoom()
+        {
+            PhotonNetwork.JoinRoom(nameJoinRoom);
+        }
+        private void BtnRandomRoom()
+        {
+            PhotonNetwork.JoinRandomRoom();
+        }
+
+        private void UpdateRoomUI()
+        {
+            groupRoom.alpha = 1.0f;
+            groupRoom.interactable = true;
+            groupRoom.blocksRaycasts = true;
+
+            textRoomName.text = PhotonNetwork.CurrentRoom.Name;
+            textRoomPersonCount.text = $"{PhotonNetwork.CurrentRoom.PlayerCount} / {PhotonNetwork.CurrentRoom.MaxPlayers}";
+        }
+        [PunRPC]
+        private void RPCLoadGameScene()
+        {
+            Debug.LogError("<color=#69f>開始遊戲</color>");
+            PhotonNetwork.LoadLevel("GameScene");
+        }
+
         public override void OnConnectedToMaster()
         {
             base.OnConnectedToMaster();
@@ -70,6 +137,25 @@ namespace photonPun
                 print("<color=#f96>連線至伺服器成功!</color>");
                 groupLobby.interactable = true;
             }
+        }
+
+        public override void OnCreatedRoom()
+        {
+            base.OnCreatedRoom();
+            print("<color=#6f9>創建房間成功</color>");
+            UpdateRoomUI();
+        }
+
+        public override void OnJoinedRoom()
+        {
+            base.OnJoinedRoom();
+            print("<color=#6f9>加入房間成功</color>");
+            UpdateRoomUI();
+        }
+        public override void OnPlayerEnteredRoom(Player newPlayer)
+        {
+            base.OnPlayerEnteredRoom(newPlayer);
+            UpdateRoomUI();
         }
     }
 }
