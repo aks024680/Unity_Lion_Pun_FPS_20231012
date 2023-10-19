@@ -83,8 +83,12 @@ namespace photonPun
 
         private void GetInputFieldData()
         {
-            inputFieldName.onEndEdit.AddListener((input) => namePlayer = input);
-            inputFieldCreateRoomName.onEndEdit.AddListener((input) => nameCreateRoom = input);
+            inputFieldName.onEndEdit.AddListener((input) =>
+            {
+                namePlayer = input;
+                PhotonNetwork.NickName = namePlayer;
+            });
+        inputFieldCreateRoomName.onEndEdit.AddListener((input) => nameCreateRoom = input);
             inputFieldJoinRoomName.onEndEdit.AddListener((input) => nameJoinRoom = input);
         }
 
@@ -125,7 +129,7 @@ namespace photonPun
         [PunRPC]
         private void RPCLoadGameScene()
         {
-            Debug.LogError("<color=#69f>開始遊戲</color>");
+            //Debug.LogError("<color=#69f>開始遊戲</color>");
             PhotonNetwork.LoadLevel("GameScene");
         }
 
