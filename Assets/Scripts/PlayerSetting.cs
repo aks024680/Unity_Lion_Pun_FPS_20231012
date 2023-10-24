@@ -2,6 +2,7 @@
 using Photon.Pun;
 using StarterAssets;
 using TMPro;
+using Cinemachine;
 
 namespace photonPun
 {
@@ -20,6 +21,10 @@ namespace photonPun
         private TextMeshProUGUI textPlayerName;
         [SerializeField, Header("theGirl模型")]
         private GameObject objectGirlHead;
+        [SerializeField,Header("畫布主要")]
+        private GameObject objectMainCanvas;
+        [SerializeField, Header("開槍系統")]
+        private FireSystem fireSystem;
 
         private string pointName = "Spawn";
 
@@ -28,9 +33,15 @@ namespace photonPun
             SettingPosition();
             if (!photonView.IsMine)
             {
-                objectCamera.SetActive(false);
+                objectCamera.tag = "Untagged";
+                objectCamera.GetComponent<Camera>().enabled = false;
+                objectCamera.GetComponent<AudioListener>().enabled = false;
+                objectCamera.GetComponent<CinemachineBrain>().enabled = false;
+                //objectCamera.SetActive(false);
                 objectCameraFollow.SetActive(false); 
                 firstPersonController.enabled = false;
+                objectMainCanvas.SetActive(false);
+                fireSystem.enabled = false;
             }
             else if(photonView.IsMine)
             {
