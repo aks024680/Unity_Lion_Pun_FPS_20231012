@@ -25,6 +25,8 @@ namespace photonPun
         private GameObject objectMainCanvas;
         [SerializeField, Header("開槍系統")]
         private FireSystem fireSystem;
+        [SerializeField, Header("輸入資源")]
+        private StarterAssetsInputs starterAssetsInputs;
 
         private string pointName = "Spawn";
 
@@ -41,11 +43,13 @@ namespace photonPun
                 objectCameraFollow.SetActive(false); 
                 firstPersonController.enabled = false;
                 objectMainCanvas.SetActive(false);
-                fireSystem.enabled = false;
+                //fireSystem.enabled = false;
+                starterAssetsInputs.cursorLocked = false;
             }
             else if(photonView.IsMine)
             {
                 objectGirlHead.layer = 3;
+                firstPersonController.transform.localPosition = Vector3.zero;
             }
             textPlayerName.text = photonView.Owner.NickName;
         }
